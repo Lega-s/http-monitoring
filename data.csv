@@ -1,3 +1,1 @@
 timestamp,latency_ms,error
-2025-09-01 20:29:29,0,"HTTPConnectionPool(host='userproxy.pnet.ch', port=3128): Max retries exceeded with url: http://www.google.com/ (Caused by ProxyError('Unable to connect to proxy', NameResolutionError(""<urllib3.connection.HTTPConnection object at 0x00000246D9808D70>: Failed to resolve 'userproxy.pnet.ch' ([Errno 11001] getaddrinfo failed)"")))"
-2025-09-01 20:29:35,0,"HTTPConnectionPool(host='userproxy.pnet.ch', port=3128): Max retries exceeded with url: http://www.google.com/ (Caused by ProxyError('Unable to connect to proxy', NameResolutionError(""<urllib3.connection.HTTPConnection object at 0x00000246DBBE3390>: Failed to resolve 'userproxy.pnet.ch' ([Errno 11001] getaddrinfo failed)"")))"

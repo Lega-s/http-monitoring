@@ -101,16 +101,15 @@ def update_graph(selected_range, n_intervals):
         )
         avg_text = "No data in current Timeoption"
     else:
-        dff['error_wrapped'] = dff['error'].fillna('').apply(
+        dff['error_msg'] = dff['error'].fillna('').apply(
             lambda e: '<br>'.join(textwrap.wrap(str(e), width=50))
         )
-
 
         fig = px.line(
             dff,
             x='timestamp',
             y='latency_ms',
-            hover_data={'error_wrapped': True},
+            hover_data={'error_msg': True},
             title=f"Response Time ({selected_range})",
             markers=True
         )
