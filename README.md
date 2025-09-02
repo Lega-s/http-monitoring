@@ -54,3 +54,11 @@ pip config set --user global.index-url https://artifactory.tools.post.ch/artifac
 ```cmd
 pip install requests pandas plotly dash flask
 ```
+
+### Run the Script
+
+Für einen Client der nur daten liefern soll braucht es nur 1 File (file gibt es noch nicht...) das man mit folgendem Befehl starten kann:
+
+```cmd
+py app.py
+```
