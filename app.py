@@ -48,39 +48,18 @@ app.layout = html.Div([
         value='All time'
     ),
     dcc.Graph(id='graph'),
-    dcc.Interval(
-        id='interval-component',
-        interval=180*1000,
-        n_intervals=0
-    )
+    dcc.Interval(id='interval-component', interval=180*1000, n_intervals=0),
+    dcc.Store(id='interval-store', data=120000)
 ])
 
 @callback(
     Output('graph', 'figure'),
     Output('average-latency', 'children'),
-    Output('interval-component', 'interval'),
     [Input('dropdown-selection', 'value'),
      Input('interval-component', 'n_intervals')]
 )
 
 def update_graph(selected_range, n_intervals):
-
-    # Requests Components
-    result = measure_load_time()
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    print(result)
-
-    with open(csv_file, mode='a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow([timestamp, result['latency_ms'], result['error']])
-
-    if result["latency_ms"] > 500 or result["error"] is not None:
-        new_interval = 5 * 1000
-    else:
-        new_interval = 120 * 1000
-
-    # Dash Components
     df = pd.read_csv('data.csv', parse_dates=['timestamp'], date_parser=dateparse)
     now = datetime.now()
 
@@ -101,15 +80,16 @@ def update_graph(selected_range, n_intervals):
         )
         avg_text = "No data in current Timeoption"
     else:
-        dff['error_msg'] = dff['error'].fillna('').apply(
+        dff['error_wrapped'] = dff['error'].fillna('').apply(
             lambda e: '<br>'.join(textwrap.wrap(str(e), width=50))
         )
+
 
         fig = px.line(
             dff,
             x='timestamp',
             y='latency_ms',
-            hover_data={'error_msg': True},
+            hover_data={'error_wrapped': True},
             title=f"Response Time ({selected_range})",
             markers=True
         )
@@ -123,28 +103,50 @@ def update_graph(selected_range, n_intervals):
         avg_latency = dff['latency_ms'].mean()
         avg_text = f"Average Latency: {avg_latency:.2f} ms"
 
-    return fig, avg_text, new_interval
+    return fig, avg_text
 
+@callback(
+    Output('interval-store', 'data'),
+    Input('interval-component', 'n_intervals')
+)
 def measure_load_time():
+    log = {};
     start_time = time.time()
+
     try:
         response = requests.get("http://www.google.com", proxies=proxies, timeout=10)
         latency = int((time.time() - start_time) * 1000)
-        
-            
-        return {
+        log = {
+            "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             "latency_ms": latency,
             "error": None
         }
+
+        requests.post("http://10.226.0.166:5000/log", json=log)
     
     except requests.exceptions.RequestException as e:
-        latency = int((time.time() - start_time) * 1000)
-        return {
+        log = {
+            "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             "latency_ms": 0,
             "error": str(e)
         }
 
+        requests.post("http://10.226.0.166:5000/log", json=log)
+
+    print(log)
+    if log["latency_ms"] > 500 or log["error"] is not None:
+        return 5000
+    else:
+        return 120000
+    
+@callback(
+    Output('interval-component', 'interval'),
+    Input('interval-store', 'data')
+)
+def update_interval(new_interval):
+    return new_interval
+        
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8050, debug=True)
  
-
