@@ -1,6 +1,14 @@
 from flask import Flask, request, jsonify
+import os
+import csv
 
 srv = Flask(__name__)
+csv_file = 'data.csv'
+
+if not os.path.isfile(csv_file):
+    with open(csv_file, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['timestamp', 'latency_ms', 'error'])
 
 @srv.route('/log', methods=['POST'])
 def add_log():
