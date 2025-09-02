@@ -25,6 +25,7 @@ TIME_OPTIONS = {
 app.layout = html.Div([
     html.H1(children='Google Monitoring'),
     html.H3(id='average-latency', children='Durchschnittslatenz: wird geladen...'),
+    html.H3(id='average-latency', children='Durchschnittslatenz: wird geladen...'),
     dcc.Dropdown(
         id='dropdown-selection',
         options=[{'label': label, 'value': label} for label in TIME_OPTIONS],
@@ -38,6 +39,7 @@ app.layout = html.Div([
 @callback(
     Output('graph', 'figure'),
     Output('average-latency', 'children'),
+    Output('request_count', 'children'),
     [Input('dropdown-selection', 'value'),
      Input('interval-component', 'n_intervals')]
 )
@@ -86,9 +88,12 @@ def update_graph(selected_range, n_intervals):
         avg_latency = dff['latency_ms'].mean()
         avg_text = f"Average Latency: {avg_latency:.2f} ms"
 
-    return fig, avg_text
-        
+        count_requests = pd.read_csv('data.csv')
+        count_text = f"Requests: {len(count_requests)}"
+
+    return fig, avg_text, count_text    
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8050, debug=True)
+
 
