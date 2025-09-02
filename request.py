@@ -3,6 +3,7 @@ import requests
 import time
 
 sleep_time = 120
+client_id = 'w00mp3'
 
 proxies = {
     "http": "http://userproxy.pnet.ch:3128",
@@ -26,7 +27,8 @@ def measure_load_time():
         log = {
             "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             "latency_ms": latency,
-            "error": error
+            "error": error,
+            "client_id": client_id
         }
 
         try:
@@ -39,7 +41,8 @@ def measure_load_time():
         log = {
             "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             "latency_ms": 0,
-            "error": str(e)
+            "error": str(e),
+            "client_id": client_id
         }
         try:
             requests.post("http://10.226.0.166:5000/log", json=log)
