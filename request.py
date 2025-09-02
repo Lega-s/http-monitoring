@@ -11,37 +11,52 @@ proxies = {
 
 def measure_load_time():
     global sleep_time
-    log = {};
+    log = {}
     start_time = time.time()
 
     try:
         response = requests.get("http://www.google.com", proxies=proxies, timeout=10)
-        latency = int((time.time() - start_time) * 1000)
+        if response.status_code == 200:
+            latency = int((time.time() - start_time) * 1000)
+            error = None
+        else:
+            latency = 0
+            error = f"HTTP Error {response.status_code}"
+
         log = {
             "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             "latency_ms": latency,
-            "error": None
+            "error": error
         }
 
-        requests.post("http://10.226.0.166:5000/log", json=log)
-    
+        try:
+            post_response = requests.post("http://10.226.0.166:5000/log", json=log)
+            post_response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f"Fehler beim Senden des Logs: {e}")
+
     except requests.exceptions.RequestException as e:
         log = {
             "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             "latency_ms": 0,
             "error": str(e)
         }
-
-        requests.post("http://10.226.0.166:5000/log", json=log)
+        try:
+            requests.post("http://10.226.0.166:5000/log", json=log)
+        except Exception as post_error:
+            print(f"Fehler beim Senden des Fehler-Logs: {post_error}")
 
     if log["latency_ms"] > 500 or log["error"] is not None:
         sleep_time = 5
     else:
         sleep_time = 120
+
     print(log)
-    return;
+    return sleep_time
+
+
+
 
 while (True):
     measure_load_time()
     time.sleep(sleep_time)
-
