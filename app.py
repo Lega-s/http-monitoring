@@ -71,6 +71,7 @@ def update_graph(selected_range, n_intervals):
             dff,
             x='timestamp',
             y='latency_ms',
+            color='client_id',
             hover_data={'error_wrapped': True},
             title=f"Response Time ({selected_range})",
             markers=True
