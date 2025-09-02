@@ -7,6 +7,10 @@ Dieses Projekt ist ein einfaches Monitoring-Dashboard, das die Antwortzeiten von
 
 Die srv.py Datei wird verwendet als Funktion für die CSV-Datei, das man neue Logs innerhalb des netzwerkes schreiben kann mit einer simplen HTTP Request was man direkt in das app.py integrieren kann. Diese Funktion braucht es nur auf einem Client der die CSV-Datei verwaltet.
 
+So sieht das Monitoring im Borwser aus, hier wurden eine zeit lang keine daten geliefert darum der unterbruch:
+<img width="1907" height="1007" alt="grafik" src="https://github.com/user-attachments/assets/f18e49ce-1c3f-4553-813e-5dde876e8320" />
+
+
 ### HTTP-Methode
 
 ```cmd
