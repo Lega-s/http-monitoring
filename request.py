@@ -18,7 +18,6 @@ def measure_load_time():
         response = requests.get("http://www.google.com", proxies=proxies, timeout=10)
         if response.status_code == 200:
             latency = int((time.time() - start_time) * 1000)
-            error = None
         else:
             latency = 0
             error = f"HTTP Error {response.status_code}"
@@ -60,3 +59,4 @@ def measure_load_time():
 while (True):
     measure_load_time()
     time.sleep(sleep_time)
+
