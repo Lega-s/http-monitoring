@@ -10,6 +10,7 @@ proxies = {
 }
 
 def measure_load_time():
+    global sleep_time
     log = {};
     start_time = time.time()
 
