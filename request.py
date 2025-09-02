@@ -38,7 +38,10 @@ def measure_load_time():
         sleep_time = 5
     else:
         sleep_time = 120
-    
+    print(log)
+    return;
+
 while (True):
     measure_load_time()
     time.sleep(sleep_time)
+
