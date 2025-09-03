@@ -28,6 +28,14 @@ INTERVAL_OPTIONS = {
     "Every 5 min": 300 * 1000
 }
 
+def read_interval():
+    try:
+        with open("interval.txt", "r") as file:
+            value = int(file.read().strip())
+            return value
+    except Exception:
+        return INTERVAL_OPTIONS['Every 2 min']
+
 app.layout = html.Div([
     html.H1(children='Google Monitoring'),
     html.Div([
@@ -119,14 +127,6 @@ def update_interval(selected_interval):
         file.write(str(selected_interval))
     
     return selected_interval
-
-def read_interval():
-    try:
-        with open("interval.txt", "r") as file:
-            value = int(file.read().strip())
-            return value
-    except Exception:
-        return INTERVAL_OPTIONS['Every 2 min']
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8050, debug=True)
