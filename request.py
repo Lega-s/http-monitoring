@@ -1,8 +1,14 @@
 from datetime import datetime, timedelta
 import requests
 import time
+import os
 
-sleep_time = 120
+
+with open("interval.txt", "w") as file:
+    file_interval = file.read()
+
+
+sleep_time = int(file_interval)
 client_id = 'w00mp3'
 
 proxies = {
@@ -63,3 +69,4 @@ def measure_load_time():
 while (True):
     measure_load_time()
     time.sleep(sleep_time)
+
