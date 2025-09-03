@@ -42,7 +42,7 @@ app.layout = html.Div([
         ),
         dcc.Dropdown(
             id='dropdown-interval',
-            options=[{'label': label, 'value': label} for label in INTERVAL_OPTIONS],
+            options=[{'label': label, 'value': val} for label, val in INTERVAL_OPTIONS.items()]
             value=INTERVAL_OPTIONS["Every 2 min"]
         )
     ], id='dropdown-components'),
