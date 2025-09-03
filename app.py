@@ -46,12 +46,14 @@ app.layout = html.Div([
         dcc.Dropdown(
             id='dropdown-selection',
             options=[{'label': label, 'value': label} for label in TIME_OPTIONS],
-            value='All time'
+            value='All time',
+            style={'color': 'white'}
         ),
         dcc.Dropdown(
             id='dropdown-interval',
             options=[{'label': label, 'value': val} for label, val in INTERVAL_OPTIONS.items()],
-            value=value=read_interval_from_file()
+            value=value=read_interval_from_file(),
+            style={'color': 'white'}
         )
     ], id='dropdown-components'),
     dcc.Graph(id='graph'),
