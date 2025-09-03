@@ -3,12 +3,15 @@ import requests
 import time
 import os
 
+try:
+    with open("interval.txt", "w") as file:
+        file_interval = file.read()
 
-with open("interval.txt", "w") as file:
-    file_interval = file.read()
-
-
-sleep_time = int(file_interval)
+    sleep_time = int(file_interval) / 1000
+except:
+    print("Fehler bei der interval.txt Datei")
+    sleep_time = 120
+    
 client_id = 'w00mp3'
 
 proxies = {
@@ -69,4 +72,5 @@ def measure_load_time():
 while (True):
     measure_load_time()
     time.sleep(sleep_time)
+
 
