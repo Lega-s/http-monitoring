@@ -3,15 +3,8 @@ import requests
 import time
 import os
 
-try:
-    with open("interval.txt", "w") as file:
-        file_interval = file.read()
+sleep_time = 120
 
-    sleep_time = int(file_interval) / 1000
-except:
-    print("Fehler bei der interval.txt Datei")
-    sleep_time = 120
-    
 client_id = 'w00mp3'
 
 proxies = {
@@ -22,8 +15,16 @@ proxies = {
 def measure_load_time():
     global sleep_time
     log = {}
-    start_time = time.time()
 
+    try:
+        with open("interval.txt", "w") as file:
+            file_interval = file.read()
+
+        sleep_time = int(file_interval) / 1000
+    except:
+        print("Fehler bei der interval.txt Datei")
+
+    start_time = time.time()
     try:
         response = requests.get("http://www.google.com", proxies=proxies, timeout=10)
         if response.status_code == 200:
@@ -72,5 +73,3 @@ def measure_load_time():
 while (True):
     measure_load_time()
     time.sleep(sleep_time)
-
-
