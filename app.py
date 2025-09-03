@@ -52,7 +52,7 @@ app.layout = html.Div([
         dcc.Dropdown(
             id='dropdown-interval',
             options=[{'label': label, 'value': val} for label, val in INTERVAL_OPTIONS.items()],
-            value=value=read_interval_from_file(),
+            value=read_interval(),
             style={'color': 'white'}
         )
     ], id='dropdown-components'),
