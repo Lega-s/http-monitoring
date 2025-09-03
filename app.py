@@ -3,7 +3,6 @@ import plotly.express as px
 import pandas as pd
 from datetime import datetime, timedelta
 import textwrap
-import csv
 import os
 
 dateparse = lambda x: datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
@@ -21,17 +20,32 @@ TIME_OPTIONS = {
     "All time": None
 }
 
+INTERVAL_OPTIONS = {
+    "Every 10 sec": 10 * 1000,
+    "Every 30 sec": 30 * 1000,
+    "Every 1 min": 60 * 1000,
+    "Every 2 min": 120 * 1000,
+    "Every 5 min": 300 * 1000
+}
+
 app.layout = html.Div([
     html.H1(children='Google Monitoring'),
     html.Div([
         html.H3(id='average-latency', children='Durchschnittslatenz: wird geladen...'),
         html.H3(id='file-size', children='Dateigrösse: wird geladen...'),
     ], id='data-components'),
-    dcc.Dropdown(
-        id='dropdown-selection',
-        options=[{'label': label, 'value': label} for label in TIME_OPTIONS],
-        value='All time'
-    ),
+    html.Div([
+        dcc.Dropdown(
+            id='dropdown-selection',
+            options=[{'label': label, 'value': label} for label in TIME_OPTIONS],
+            value='All time'
+        ),
+        dcc.Dropdown(
+            id='dropdown-interval',
+            options=[{'label': label, 'value': label} for label in INTERVAL_OPTIONS.items()],
+            value=INTERVAL_OPTIONS["Every 2 min"]
+        )
+    ], id='dropdown-components'),
     dcc.Graph(id='graph'),
     dcc.Interval(id='interval-component', interval=180*1000, n_intervals=0),
     dcc.Store(id='interval-store', data=120000)
@@ -95,7 +109,16 @@ def update_graph(selected_range, n_intervals):
     file_size = f"File Size: {size_mb:.2f} MB"
 
     return fig, avg_text, file_size
-        
+
+@callback(
+    Output('interval-store', 'data'),
+    Input('dropdown-interval', 'value')
+)
+def update_interval(selected_interval):
+    with open("interval.txt", "w") as file:
+        file.write(str(selected_interval))
+    
+    return selected_interval
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8050, debug=True)
