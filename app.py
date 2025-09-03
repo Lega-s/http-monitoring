@@ -42,8 +42,8 @@ app.layout = html.Div([
         ),
         dcc.Dropdown(
             id='dropdown-interval',
-            options=[{'label': label, 'value': val} for label, val in INTERVAL_OPTIONS.items()]
-            value=INTERVAL_OPTIONS["Every 2 min"]
+            options=[{'label': label, 'value': val} for label, val in INTERVAL_OPTIONS.items()],
+            value=value=read_interval_from_file()
         )
     ], id='dropdown-components'),
     dcc.Graph(id='graph'),
@@ -119,6 +119,14 @@ def update_interval(selected_interval):
         file.write(str(selected_interval))
     
     return selected_interval
+
+def read_interval():
+    try:
+        with open("interval.txt", "r") as file:
+            value = int(file.read().strip())
+            return value
+    except Exception:
+        return INTERVAL_OPTIONS['Every 2 min']
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8050, debug=True)
