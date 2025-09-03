@@ -23,7 +23,10 @@ TIME_OPTIONS = {
 
 app.layout = html.Div([
     html.H1(children='Google Monitoring'),
-    html.H3(id='average-latency', children='Durchschnittslatenz: wird geladen...'),
+    html.Div([
+        html.H3(id='average-latency', children='Durchschnittslatenz: wird geladen...'),
+        html.H3(id='file-size', children='Dateigrösse: wird geladen...'),
+    ], id='data-components'),
     dcc.Dropdown(
         id='dropdown-selection',
         options=[{'label': label, 'value': label} for label in TIME_OPTIONS],
@@ -37,6 +40,7 @@ app.layout = html.Div([
 @callback(
     Output('graph', 'figure'),
     Output('average-latency', 'children'),
+    Output('file-size', 'children'),
     [Input('dropdown-selection', 'value'),
      Input('interval-component', 'n_intervals')]
 )
@@ -86,7 +90,11 @@ def update_graph(selected_range, n_intervals):
         avg_latency = dff['latency_ms'].mean()
         avg_text = f"Average Latency: {avg_latency:.2f} ms"
 
-    return fig, avg_text
+    size_bytes = os.path.getsize("data.csv")
+    size_mb = size_bytes / (1024 * 1024)
+    file_size = f"File Size: {size_mb:.2f} MB"
+
+    return fig, avg_text, file_size
         
 
 if __name__ == '__main__':
