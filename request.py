@@ -16,14 +16,6 @@ def measure_load_time():
     global sleep_time
     log = {}
 
-    try:
-        with open("interval.txt", "w") as file:
-            file_interval = file.read()
-
-        sleep_time = int(file_interval) / 1000
-    except:
-        print("Fehler bei der interval.txt Datei")
-
     start_time = time.time()
     try:
         response = requests.get("http://www.google.com", proxies=proxies, timeout=10)
@@ -62,7 +54,13 @@ def measure_load_time():
     if log["latency_ms"] > 500 or log["error"] is not None:
         sleep_time = 5
     else:
-        sleep_time = 120
+        try:
+            with open("interval.txt", "r") as file:
+                file_interval = file.read()
+
+            sleep_time = int(file_interval) / 1000
+        except:
+            print("Fehler bei der interval.txt Datei")
 
     print(log)
     return sleep_time
@@ -70,6 +68,6 @@ def measure_load_time():
 
 
 
-while (True):
-    measure_load_time()
+while True:
+    sleep_time = measure_load_time()
     time.sleep(sleep_time)
