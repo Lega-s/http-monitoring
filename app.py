@@ -6,7 +6,8 @@ import textwrap
 import os
 
 dateparse = lambda x: datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
-df = pd.read_csv('data.csv', parse_dates=['timestamp'], date_format=dateparse)
+df = pd.read_csv('data.csv')
+df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
 
 app = Dash()
 
@@ -71,7 +72,8 @@ app.layout = html.Div([
 )
 def update_graph(selected_range):
     handle_interval(read_interval())
-    df = pd.read_csv('data.csv', parse_dates=['timestamp'], date_format=dateparse)
+    df = pd.read_csv('data.csv')
+    df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
     now = datetime.now()
 
     if TIME_OPTIONS[selected_range] is not None:
