@@ -6,7 +6,7 @@ import textwrap
 import os
 
 dateparse = lambda x: datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
-df = pd.read_csv('data.csv', parse_dates=['timestamp'], date_parser=dateparse)
+df = pd.read_csv('data.csv', parse_dates=['timestamp'], date_format=dateparse)
 
 app = Dash()
 
@@ -33,8 +33,11 @@ def read_interval():
         with open("interval.txt", "r") as file:
             value = int(file.read().strip())
             return value
-    except Exception:
-        return INTERVAL_OPTIONS['Every 2 min']
+    except (FileNotFoundError, ValueError, IOError):
+        default = INTERVAL_OPTIONS['Every 2 min']
+        return default
+
+initial_interval = read_interval()
 
 app.layout = html.Div([
     html.H1(children='Google Monitoring'),
@@ -52,25 +55,23 @@ app.layout = html.Div([
         dcc.Dropdown(
             id='dropdown-interval',
             options=[{'label': label, 'value': val} for label, val in INTERVAL_OPTIONS.items()],
-            value=read_interval(),
             style={'color': 'white'}
         )
     ], id='dropdown-components'),
     dcc.Graph(id='graph'),
-    dcc.Interval(id='interval-component', interval=180*1000, n_intervals=0),
-    dcc.Store(id='interval-store', data=120000)
+    dcc.Interval(id='interval-component', n_intervals=0),
+    dcc.Store(id='interval-store')
 ])
 
 @callback(
     Output('graph', 'figure'),
     Output('average-latency', 'children'),
     Output('file-size', 'children'),
-    [Input('dropdown-selection', 'value'),
-     Input('interval-component', 'n_intervals')]
+    Input('dropdown-selection', 'value')
 )
-
-def update_graph(selected_range, n_intervals):
-    df = pd.read_csv('data.csv', parse_dates=['timestamp'], date_parser=dateparse)
+def update_graph(selected_range):
+    handle_interval(read_interval())
+    df = pd.read_csv('data.csv', parse_dates=['timestamp'], date_format=dateparse)
     now = datetime.now()
 
     if TIME_OPTIONS[selected_range] is not None:
@@ -93,8 +94,6 @@ def update_graph(selected_range, n_intervals):
         dff['error_wrapped'] = dff['error'].fillna('').apply(
             lambda e: '<br>'.join(textwrap.wrap(str(e), width=50))
         )
-
-
         fig = px.line(
             dff,
             x='timestamp',
@@ -121,14 +120,24 @@ def update_graph(selected_range, n_intervals):
     return fig, avg_text, file_size
 
 @callback(
+    Output('dropdown-interval', 'value'),
+    Output('interval-component', 'interval'),
     Output('interval-store', 'data'),
-    Input('dropdown-interval', 'value')
+    Input('dropdown-interval', 'value'),
+    prevent_initial_call=False
 )
-def update_interval(selected_interval):
-    with open("interval.txt", "w") as file:
-        file.write(str(selected_interval))
-    
-    return selected_interval
+def handle_interval(selected):
+    if selected == None:
+        value = read_interval()
+        return value, value, value
+
+    try:
+        with open("interval.txt", "w") as file:
+            file.write(str(int(selected)))
+    except IOError as e:
+        print("Failed to write interval.txt", e)
+    return selected, selected, selected
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8050, debug=True)
