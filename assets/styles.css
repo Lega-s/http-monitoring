@@ -17,7 +17,7 @@ h3 {
     font-size: 24px;
 }
 
-#dropdown-selection, #dropdown-interval {
+#dropdown-selection, #dropdown-interval, #dropdown-client {
     width: 25%;
 }
 
@@ -41,3 +41,4 @@ h3 {
     display: flex;
     justify-content: space-around;
 }
+
