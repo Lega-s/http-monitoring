@@ -68,10 +68,10 @@ app.layout = html.Div([
     Output('graph', 'figure'),
     Output('average-latency', 'children'),
     Output('file-size', 'children'),
-    Input('dropdown-selection', 'value')
+    Input('dropdown-selection', 'value'),
+    Input('interval-component', 'n_intervals'),
 )
-def update_graph(selected_range):
-    handle_interval(read_interval())
+def update_graph(selected_range, n_intervals):
     df = pd.read_csv('data.csv')
     df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
     now = datetime.now()
@@ -93,6 +93,9 @@ def update_graph(selected_range):
         )
         avg_text = "No data in current Timeoption"
     else:
+        request_count = dff.groupby('client_id')['timestamp'].transform('count')
+        dff['request_count'] = request_count
+        
         dff['error_wrapped'] = dff['error'].fillna('').apply(
             lambda e: '<br>'.join(textwrap.wrap(str(e), width=50))
         )
@@ -101,7 +104,7 @@ def update_graph(selected_range):
             x='timestamp',
             y='latency_ms',
             color='client_id',
-            hover_data={'error_wrapped': True},
+            hover_data={'error_wrapped': True, 'request_count': True},
             title=f"Response Time ({selected_range})",
             markers=True
         )
