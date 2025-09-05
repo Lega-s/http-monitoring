@@ -54,6 +54,12 @@ app.layout = html.Div([
             style={'color': 'white'}
         ),
         dcc.Dropdown(
+            id='dropdown-client',
+            multi=False,
+            value='All clients',
+            style={'color': 'white'}
+        ),
+        dcc.Dropdown(
             id='dropdown-interval',
             options=[{'label': label, 'value': val} for label, val in INTERVAL_OPTIONS.items()],
             style={'color': 'white'}
@@ -69,9 +75,10 @@ app.layout = html.Div([
     Output('average-latency', 'children'),
     Output('file-size', 'children'),
     Input('dropdown-selection', 'value'),
+    Input('dropdown-client', 'value'),
     Input('interval-component', 'n_intervals'),
 )
-def update_graph(selected_range, n_intervals):
+def update_graph(selected_range, selected_client, n_intervals):
     df = pd.read_csv('data.csv')
     df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
     now = datetime.now()
@@ -81,6 +88,9 @@ def update_graph(selected_range, n_intervals):
         dff = df[(df['timestamp'] >= min_time) & (df['latency_ms'].notna())]
     else:
         dff = df[df['latency_ms'].notna()]
+
+    if selected_client != 'All clients':
+        dff = dff[dff['client_id'] == selected_client]
 
     if dff.empty:
         fig = px.line(title="No data in selected time range")
@@ -95,9 +105,10 @@ def update_graph(selected_range, n_intervals):
     else:
         request_count = dff.groupby('client_id')['timestamp'].transform('count')
         dff['request_count'] = request_count
-        
+
         dff['error_wrapped'] = dff['error'].fillna('').apply(
-            lambda e: '<br>'.join(textwrap.wrap(str(e), width=50))
+            lambda e: '
+'.join(textwrap.wrap(str(e), width=50))
         )
         fig = px.line(
             dff,
@@ -143,7 +154,18 @@ def handle_interval(selected):
         print("Failed to write interval.txt", e)
     return selected, selected, selected
 
+@callback(
+    Output('dropdown-client', 'options'),
+    Input('interval-component', 'n_intervals')
+)
+def update_client_dropdown_options(n_intervals):
+    df = pd.read_csv('data.csv')
+    clients = df['client_id'].unique()
+
+    options = [{'label': 'All clients', 'value': 'All clients'}]
+    options.extend([{'label': client, 'value': client} for client in clients])
+
+    return options
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8050, debug=True)
-
