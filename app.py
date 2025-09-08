@@ -55,8 +55,8 @@ app.layout = html.Div([
         ),
         dcc.Dropdown(
             id='dropdown-client',
-            multi=False,
-            value='All clients',
+            multi=True,
+            value=[],
             style={'color': 'white'}
         ),
         dcc.Dropdown(
@@ -66,7 +66,7 @@ app.layout = html.Div([
         )
     ], id='dropdown-components'),
     dcc.Graph(id='graph'),
-    dcc.Interval(id='interval-component', n_intervals=0),
+    dcc.Interval(id='interval-component', n_intervals=0, interval=initial_interval),
     dcc.Store(id='interval-store')
 ])
 
@@ -89,8 +89,8 @@ def update_graph(selected_range, selected_client, n_intervals):
     else:
         dff = df[df['latency_ms'].notna()]
 
-    if selected_client != 'All clients':
-        dff = dff[dff['client_id'] == selected_client]
+    if selected_client:
+        dff = dff[dff['client_id'].isin(selected_client)]
 
     if dff.empty:
         fig = px.line(title="No data in selected time range")
@@ -107,8 +107,7 @@ def update_graph(selected_range, selected_client, n_intervals):
         dff['request_count'] = request_count
 
         dff['error_wrapped'] = dff['error'].fillna('').apply(
-            lambda e: '
-'.join(textwrap.wrap(str(e), width=50))
+            lambda e: '<br>'.join(textwrap.wrap(str(e), width=50))
         )
         fig = px.line(
             dff,
@@ -162,9 +161,8 @@ def update_client_dropdown_options(n_intervals):
     df = pd.read_csv('data.csv')
     clients = df['client_id'].unique()
 
-    options = [{'label': 'All clients', 'value': 'All clients'}]
-    options.extend([{'label': client, 'value': client} for client in clients])
-
+    options = [{'label': client, 'value': client} for client in clients]
+    
     return options
 
 if __name__ == '__main__':
