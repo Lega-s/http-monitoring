@@ -55,10 +55,10 @@ def measure_load_time():
         sleep_time = 5
     else:
         try:
-            with open("interval.txt", "r") as file:
-                file_interval = file.read()
+            with open("interval.json", "r") as file:
+                data = json.load(file)
 
-            sleep_time = int(file_interval) / 1000
+            sleep_time = int(data["interval"]) / 1000
         except:
             print("Fehler bei der interval.txt Datei")
 
