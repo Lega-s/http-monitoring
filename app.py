@@ -139,6 +139,9 @@ def update_graph(selected_range, selected_client, n_intervals):
     Input('dropdown-interval', 'value')
 )
 def handle_interval(selected):
+    if selected == None:
+        value = read_interval()
+        return value, value, value
     try:
         with open("interval.txt", "r") as file:
             data = json.load(file)
@@ -167,4 +170,5 @@ def update_client_dropdown_options(n_intervals):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8050, debug=True)
+
 
