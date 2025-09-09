@@ -135,23 +135,23 @@ def update_graph(selected_range, selected_client, n_intervals):
     return fig, avg_text, file_size
 
 @callback(
-    Output('dropdown-interval', 'value'),
-    Output('interval-component', 'interval'),
     Output('interval-store', 'data'),
-    Input('dropdown-interval', 'value'),
-    prevent_initial_call=False
+    Input('dropdown-interval', 'value')
 )
 def handle_interval(selected):
-    if selected == None:
-        value = read_interval()
-        return value, value, value
-
     try:
+        with open("interval.txt", "r") as file:
+            data = json.load(file)
+
+        data["interval"] = selected_interval
+
         with open("interval.txt", "w") as file:
-            file.write(str(int(selected)))
-    except IOError as e:
-        print("Failed to write interval.txt", e)
-    return selected, selected, selected
+            json.dump(data, file, indent=4)
+
+    except:
+        print("Error while updating Json-File")
+
+    return selected_interval
 
 @callback(
     Output('dropdown-client', 'options'),
@@ -167,3 +167,4 @@ def update_client_dropdown_options(n_intervals):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8050, debug=True)
+
